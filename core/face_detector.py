@@ -23,12 +23,12 @@ class FaceDetector:
         Return: list of (x, y, w, h) atau None jika tidak ada wajah.
         """
         faces = self.cascade.detectMultiScale(
-            gray_img,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(80, 80),
-            flags=cv2.CASCADE_SCALE_IMAGE
-        )
+    gray_img,
+    scaleFactor=1.05,
+    minNeighbors=3,
+    minSize=(40, 40),
+    flags=cv2.CASCADE_SCALE_IMAGE
+)
 
         if len(faces) == 0:
             return None, self._error("Tidak ada wajah terdeteksi. "
@@ -75,7 +75,7 @@ class FaceDetector:
         # Cek blur — pakai variance of Laplacian
         # Nilai < 50 = foto terlalu buram
         lap_var = cv2.Laplacian(gray_img, cv2.CV_64F).var()
-        if lap_var < 50:
+        if lap_var < 20:
             return False, f"Foto terlalu buram (skor: {lap_var:.1f}). Gunakan foto yang lebih tajam."
 
         # Cek kecerahan rata-rata

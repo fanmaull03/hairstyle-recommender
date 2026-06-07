@@ -8,12 +8,14 @@ class LandmarkDetector:
         self.predictor = dlib.shape_predictor(model_path)
 
     def detect(self, gray_img, bbox, debug=False):
-        """
-        Deteksi 68 landmark dari citra grayscale + bounding box.
+        # Pastikan gambar 8-bit grayscale
+        if gray_img.dtype != np.uint8:
+            gray_img = gray_img.astype(np.uint8)
+        
+        # Kalau ternyata masih BGR/RGB, konversi ke grayscale
+        if len(gray_img.shape) == 3:
+            gray_img = cv2.cvtColor(gray_img, cv2.COLOR_BGR2GRAY)
 
-        bbox : tuple (x, y, w, h) dari FaceDetector
-        Return: numpy array shape (68, 2) berisi koordinat (x, y) tiap titik
-        """
         x, y, w, h = bbox
         rect   = dlib.rectangle(x, y, x + w, y + h)
         shape  = self.predictor(gray_img, rect)
