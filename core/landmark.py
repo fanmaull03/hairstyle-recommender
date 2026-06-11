@@ -8,13 +8,12 @@ class LandmarkDetector:
         self.predictor = dlib.shape_predictor(model_path)
 
     def detect(self, gray_img, bbox, debug=False):
-        # Pastikan gambar 8-bit grayscale
-        if gray_img.dtype != np.uint8:
-            gray_img = gray_img.astype(np.uint8)
-        
-        # Kalau ternyata masih BGR/RGB, konversi ke grayscale
+        # Pastikan format uint8 dan single channel
         if len(gray_img.shape) == 3:
             gray_img = cv2.cvtColor(gray_img, cv2.COLOR_BGR2GRAY)
+        
+        if gray_img.dtype != np.uint8:
+            gray_img = np.clip(gray_img, 0, 255).astype(np.uint8)
 
         x, y, w, h = bbox
         rect   = dlib.rectangle(x, y, x + w, y + h)
@@ -23,7 +22,7 @@ class LandmarkDetector:
 
         if debug:
             return {
-                "points"  : points,
+                "points"   : points,
                 "annotated": self._draw(gray_img.copy(), points),
             }
         return points
