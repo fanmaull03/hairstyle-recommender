@@ -1,6 +1,6 @@
 flask==3.0.0
 opencv-python==4.9.0.80
-dlib==19.24.2
+dlib-bin
 mediapipe==0.10.9
 numpy==1.26.4
 Pillow==10.2.0

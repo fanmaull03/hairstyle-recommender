@@ -1,26 +1,26 @@
 import numpy as np
 
-class FaceShapeClassifier:
 
+class FaceShapeClassifier:
     # ── Threshold rasio ──────────────────────────────────────────
     # Nilai ini berdasarkan literatur & dataset Kaggle face-shape.
     # Bisa di-fine-tune setelah uji akurasi di Fase 4.
     THRESHOLDS = {
-        "wh_narrow"       : 0.75,   # < ini = wajah panjang/sempit
-        "wh_wide"         : 0.90,   # > ini = wajah lebar/bulat
-        "jaw_heart"       : 0.75,   # jaw/forehead < ini = Heart
-        "cheek_diamond"   : 0.92,   # cheek/face   > ini = Diamond
-        "jaw_square"      : 0.95,   # jaw/forehead > ini = Square
+        "wh_narrow": 0.75,  # < ini = wajah panjang/sempit
+        "wh_wide": 0.90,  # > ini = wajah lebar/bulat
+        "jaw_heart": 0.75,  # jaw/forehead < ini = Heart
+        "cheek_diamond": 0.92,  # cheek/face   > ini = Diamond
+        "jaw_square": 0.95,  # jaw/forehead > ini = Square
     }
 
     # Label resmi + metadata
     SHAPES = {
-        "oval"    : {"label": "Oval",    "emoji": "🥚", "color": "#639922"},
-        "round"   : {"label": "Round",   "emoji": "⭕", "color": "#D85A30"},
-        "square"  : {"label": "Square",  "emoji": "🔲", "color": "#888780"},
-        "heart"   : {"label": "Heart",   "emoji": "🫀", "color": "#D4537E"},
-        "oblong"  : {"label": "Oblong",  "emoji": "📏", "color": "#378ADD"},
-        "diamond" : {"label": "Diamond", "emoji": "💎", "color": "#BA7517"},
+        "oval": {"label": "Oval", "emoji": "🥚", "color": "#639922"},
+        "round": {"label": "Round", "emoji": "⭕", "color": "#D85A30"},
+        "square": {"label": "Square", "emoji": "🔲", "color": "#888780"},
+        "heart": {"label": "Heart", "emoji": "🫀", "color": "#D4537E"},
+        "oblong": {"label": "Oblong", "emoji": "📏", "color": "#378ADD"},
+        "diamond": {"label": "Diamond", "emoji": "💎", "color": "#BA7517"},
     }
 
     def predict(self, features: dict) -> dict:
@@ -30,10 +30,10 @@ class FaceShapeClassifier:
         Input  : dict dari LandmarkDetector.extract_features()
         Output : dict dengan shape, confidence, scores, reasoning
         """
-        wh   = features["wh_ratio"]
-        jf   = features["jaw_forehead"]
-        cf   = features["cheek_face"]
-        t    = self.THRESHOLDS
+        wh = features["wh_ratio"]
+        jf = features["jaw_forehead"]
+        cf = features["cheek_face"]
+        t = self.THRESHOLDS
 
         # ── Decision tree ────────────────────────────────────────
         if wh < t["wh_narrow"]:
@@ -60,12 +60,12 @@ class FaceShapeClassifier:
         confidence, scores = self._compute_confidence(shape, features)
 
         return {
-            "shape"      : shape,
-            "label"      : self.SHAPES[shape]["label"],
-            "confidence" : confidence,          # 0.0 – 1.0
-            "scores"     : scores,              # skor tiap kategori
-            "features"   : features,
-            "reasoning"  : self._reasoning(shape, features),
+            "shape": shape,
+            "label": self.SHAPES[shape]["label"],
+            "confidence": confidence,  # 0.0 – 1.0
+            "scores": scores,  # skor tiap kategori
+            "features": features,
+            "reasoning": self._reasoning(shape, features),
         }
 
     def _compute_confidence(self, predicted: str, features: dict):
@@ -76,19 +76,21 @@ class FaceShapeClassifier:
         """
         # Pusat ideal tiap kategori (wh_ratio, jaw_forehead, cheek_face)
         centers = {
-            "oval"    : (0.820, 0.880, 0.900),
-            "round"   : (0.950, 0.900, 0.920),
-            "square"  : (0.850, 0.980, 0.910),
-            "heart"   : (0.680, 0.680, 0.870),
-            "oblong"  : (0.640, 0.850, 0.870),
-            "diamond" : (0.700, 0.820, 0.960),
+            "oval": (0.820, 0.880, 0.900),
+            "round": (0.950, 0.900, 0.920),
+            "square": (0.850, 0.980, 0.910),
+            "heart": (0.680, 0.680, 0.870),
+            "oblong": (0.640, 0.850, 0.870),
+            "diamond": (0.700, 0.820, 0.960),
         }
 
-        feat_vec = np.array([
-            features["wh_ratio"],
-            features["jaw_forehead"],
-            features["cheek_face"],
-        ])
+        feat_vec = np.array(
+            [
+                features["wh_ratio"],
+                features["jaw_forehead"],
+                features["cheek_face"],
+            ]
+        )
 
         # Hitung jarak Euclidean ke tiap pusat
         distances = {}
@@ -97,8 +99,7 @@ class FaceShapeClassifier:
 
         # Konversi jarak → skor (makin kecil jarak = makin tinggi skor)
         max_dist = max(distances.values()) + 1e-9
-        scores   = {s: round(1 - (d / max_dist), 3)
-                    for s, d in distances.items()}
+        scores = {s: round(1 - (d / max_dist), 3) for s, d in distances.items()}
 
         # Normalisasi scores ke 0–1
         total = sum(scores.values())
@@ -116,17 +117,17 @@ class FaceShapeClassifier:
         cf = features["cheek_face"]
 
         reasons = {
-            "oval"   : f"Rasio lebar/tinggi {wh:.2f} proporsional, "
-                       f"rahang sedikit lebih sempit dari dahi (rasio {jf:.2f}).",
-            "round"  : f"Rasio lebar/tinggi {wh:.2f} mendekati 1:1, "
-                       f"wajah cenderung bulat dan pipi penuh.",
-            "square" : f"Rasio lebar/tinggi {wh:.2f} proporsional namun "
-                       f"rahang hampir selebar dahi (rasio {jf:.2f}), garis rahang tegas.",
-            "heart"  : f"Dahi lebih lebar dari rahang (rasio {jf:.2f}), "
-                       f"wajah menyempit ke bawah menuju dagu.",
-            "oblong" : f"Rasio lebar/tinggi {wh:.2f} menunjukkan wajah panjang "
-                       f"dan sempit dengan lebar yang merata.",
+            "oval": f"Rasio lebar/tinggi {wh:.2f} proporsional, "
+            f"rahang sedikit lebih sempit dari dahi (rasio {jf:.2f}).",
+            "round": f"Rasio lebar/tinggi {wh:.2f} mendekati 1:1, "
+            f"wajah cenderung bulat dan pipi penuh.",
+            "square": f"Rasio lebar/tinggi {wh:.2f} proporsional namun "
+            f"rahang hampir selebar dahi (rasio {jf:.2f}), garis rahang tegas.",
+            "heart": f"Dahi lebih lebar dari rahang (rasio {jf:.2f}), "
+            f"wajah menyempit ke bawah menuju dagu.",
+            "oblong": f"Rasio lebar/tinggi {wh:.2f} menunjukkan wajah panjang "
+            f"dan sempit dengan lebar yang merata.",
             "diamond": f"Tulang pipi sangat menonjol (rasio {cf:.2f}), "
-                       f"dahi dan rahang relatif sempit.",
+            f"dahi dan rahang relatif sempit.",
         }
         return reasons.get(shape, "")
