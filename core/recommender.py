@@ -1,4 +1,4 @@
-import json, os
+import json, os, cv2
 from core.preprocessor  import Preprocessor
 from core.face_detector import FaceDetector
 from core.landmark      import LandmarkDetector
@@ -36,17 +36,14 @@ class HairstyleRecommender:
         }
         """
         try:
-            # 1. Load & preprocessing
             img_bgr = self.prep.load_image(image_source)
-            stages  = self.prep.run(img_bgr, debug=True)
-            gray    = stages["denoised"]
-
-            # 2. Validasi foto
-            is_valid, msg = self.detector.validate_photo(gray)
+            gray_original = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+            is_valid, msg = self.detector.validate_photo(gray_original)
             if not is_valid:
                 return {"success": False, "error": msg}
 
-            # 3. Deteksi wajah
+            stages = self.prep.run(img_bgr, debug=True)
+            gray = stages["denoised"]
             bbox, err = self.detector.detect(gray)
             if err:
                 return {"success": False, "error": err["error"]}
