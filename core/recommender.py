@@ -1,17 +1,24 @@
-import json, os, cv2
-from core.preprocessor  import Preprocessor
+import json
+import os
+
+import cv2
+
+from core.classifier import FaceShapeClassifier
 from core.face_detector import FaceDetector
-from core.landmark      import LandmarkDetector
-from core.classifier    import FaceShapeClassifier
+from core.landmark import LandmarkDetector
+from core.preprocessor import Preprocessor
+
 
 class HairstyleRecommender:
-    def __init__(self,
-                 model_path ="models/shape_predictor_68_face_landmarks.dat",
-                 data_path  ="data/hairstyles.json"):
+    def __init__(
+        self,
+        model_path="models/shape_predictor_68_face_landmarks.dat",
+        data_path="data/hairstyles.json",
+    ):
 
-        self.prep       = Preprocessor()
-        self.detector   = FaceDetector()
-        self.landmark   = LandmarkDetector(model_path)
+        self.prep = Preprocessor()
+        self.detector = FaceDetector()
+        self.landmark = LandmarkDetector(model_path)
         self.classifier = FaceShapeClassifier()
 
         with open(data_path, encoding="utf-8") as f:
@@ -49,30 +56,29 @@ class HairstyleRecommender:
                 return {"success": False, "error": err["error"]}
 
             # 4. Landmark & ekstraksi fitur
-            lm_result  = self.landmark.detect(gray, bbox, debug=True)
-            features   = self.landmark.extract_features(lm_result["points"])
+            lm_result = self.landmark.detect(gray, bbox, debug=True)
+            features = self.landmark.extract_features(lm_result["points"])
 
             # 5. Klasifikasi bentuk wajah
-            result     = self.classifier.predict(features)
+            result = self.classifier.predict(features)
 
             # 6. Ambil rekomendasi hairstyle
-            shape      = result["shape"]
+            shape = result["shape"]
             hairstyles = self._get_recommendations(shape, top_n)
 
             # 7. Foto annotated (landmark + bbox)
-            annotated  = self.detector.draw_bbox(
-                             lm_result["annotated"], bbox)
+            annotated = self.detector.draw_bbox(lm_result["annotated"], bbox)
 
             return {
-                "success"      : True,
-                "error"        : None,
-                "face_shape"   : shape,
-                "label"        : result["label"],
-                "confidence"   : result["confidence"],
-                "reasoning"    : result["reasoning"],
-                "scores"       : result["scores"],
-                "features"     : features,
-                "hairstyles"   : hairstyles,
+                "success": True,
+                "error": None,
+                "face_shape": shape,
+                "label": result["label"],
+                "confidence": result["confidence"],
+                "reasoning": result["reasoning"],
+                "scores": result["scores"],
+                "features": features,
+                "hairstyles": hairstyles,
                 "annotated_img": annotated,
             }
 

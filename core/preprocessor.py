@@ -1,7 +1,9 @@
+import io
+
 import cv2
 import numpy as np
 from PIL import Image
-import io
+
 
 class Preprocessor:
     def __init__(self, target_size=(256, 256)):
@@ -67,18 +69,17 @@ class Preprocessor:
         Jika debug=True → kembalikan semua tahap untuk visualisasi.
         """
         img_original = self.load_image(source)
-
-        img_resized   = self.resize(img_original)
-        img_gray      = self.to_grayscale(img_resized)
+        img_resized = self.resize(img_original)
+        img_gray = self.to_grayscale(img_resized)
         img_equalized = self.equalize_histogram(img_gray)
-        img_denoised  = self.reduce_noise(img_equalized, method=noise_method)
+        img_denoised = self.reduce_noise(img_equalized, method=noise_method)
 
         if debug:
             return {
-                "original":  img_resized,    # BGR, untuk ditampilkan
+                "original": img_resized,  # BGR, untuk ditampilkan
                 "grayscale": img_gray,
                 "equalized": img_equalized,
-                "denoised":  img_denoised,   # ← hasil final
+                "denoised": img_denoised,  # ← hasil final
             }
 
         return img_denoised  # output utama: grayscale + bersih

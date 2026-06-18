@@ -16,8 +16,6 @@ from flask import (
 
 sys.path.insert(0, ".")
 from core.recommender import HairstyleRecommender
-
-# Import fungsi visualisasi step-by-step
 from core.visualizer import get_processing_steps
 
 app = Flask(__name__, static_folder="app/static")
@@ -264,39 +262,51 @@ HTML_TEMPLATE = """
                     </div>
                 </div>
 
-                {% if steps %}
-                <div class="mt-8 mb-10 pt-8 border-t border-slate-200">
-                    <div class="text-center mb-6">
-                        <h3 class="text-lg md:text-xl font-bold text-slate-900 flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-microchip text-brand-500"></i> Tahapan Pemrosesan Citra Digital
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-1">Bagaimana AI melihat dan memetakan wajahmu</p>
-                    </div>
+               {% if steps %}
+                               <div class="mt-8 mb-10 pt-8 border-t border-slate-200">
+                                   <div class="text-center mb-6">
+                                       <h3 class="text-lg md:text-xl font-bold text-slate-900 flex justify-center items-center gap-2">
+                                           <i class="fa-solid fa-microchip text-brand-500"></i> Tahapan Pemrosesan Citra Digital
+                                       </h3>
+                                       <p class="text-sm text-slate-500 mt-1">Bagaimana AI melihat dan memetakan wajahmu</p>
+                                   </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">1. Original</span>
-                            <img src="data:image/jpeg;base64,{{ steps['1_original'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">2. Grayscale</span>
-                            <img src="data:image/jpeg;base64,{{ steps['2_grayscale'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">3. Deteksi Wajah</span>
-                            <img src="data:image/jpeg;base64,{{ steps['3_face_detection'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">4. Ekstraksi 68 Titik</span>
-                            <img src="data:image/jpeg;base64,{{ steps['4_landmarks'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-brand-50 p-2 rounded-xl border border-brand-200">
-                            <span class="text-xs font-bold text-brand-700 mb-2">5. Pola Geometri</span>
-                            <img src="data:image/jpeg;base64,{{ steps['5_shape_pattern'] }}" class="rounded-lg shadow-sm border border-brand-200 w-full object-cover">
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+                                   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">1. Original</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['1_original'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">2. Grayscale</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['2_grayscale'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">3. Smoothing (Blur)</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['3_smoothing'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">4. CLAHE (Kontras)</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['4_clahe_enhancement'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">5. Edge Detection</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['5_edge_detection'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">6. Deteksi Wajah</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['6_face_detection'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
+                                           <span class="text-xs font-semibold text-slate-600 mb-2">7. 68 Titik Landmarks</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['7_landmarks'] }}" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
+                                       </div>
+                                       <div class="flex flex-col items-center bg-brand-50 p-2 rounded-xl border border-brand-200">
+                                           <span class="text-xs font-bold text-brand-700 mb-2">8. Pola Geometri</span>
+                                           <img src="data:image/jpeg;base64,{{ steps['8_shape_pattern'] }}" class="rounded-lg shadow-sm border border-brand-200 w-full object-cover">
+                                       </div>
+                                   </div>
+                               </div>
+                               {% endif %}
 
                 <div class="border-t border-slate-200 pt-8">
                     <div class="flex items-center justify-between mb-6">
@@ -363,38 +373,17 @@ HTML_TEMPLATE = """
                         </div>
                     </div>
                 </div>
-
                 <div id="js-steps-container" class="mt-8 mb-10 pt-8 border-t border-slate-200 hidden">
-                    <div class="text-center mb-6">
-                        <h3 class="text-lg md:text-xl font-bold text-slate-900 flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-microchip text-emerald-500"></i> Tahapan Pemrosesan Citra Digital
-                        </h3>
-                        <p class="text-sm text-slate-500 mt-1">Bagaimana AI melihat dan memetakan wajahmu</p>
-                    </div>
+                                    <div class="text-center mb-6">
+                                        <h3 class="text-lg md:text-xl font-bold text-slate-900 flex justify-center items-center gap-2">
+                                            <i class="fa-solid fa-microchip text-emerald-500"></i> Tahapan Pemrosesan Citra Digital
+                                        </h3>
+                                        <p class="text-sm text-slate-500 mt-1">Bagaimana AI melihat dan memetakan wajahmu</p>
+                                    </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">1. Original</span>
-                            <img id="js-step-1" src="" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">2. Grayscale</span>
-                            <img id="js-step-2" src="" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">3. Deteksi Wajah</span>
-                            <img id="js-step-3" src="" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <span class="text-xs font-semibold text-slate-600 mb-2">4. Ekstraksi 68 Titik</span>
-                            <img id="js-step-4" src="" class="rounded-lg shadow-sm border border-slate-200 w-full object-cover">
-                        </div>
-                        <div class="flex flex-col items-center bg-emerald-50 p-2 rounded-xl border border-emerald-200">
-                            <span class="text-xs font-bold text-emerald-700 mb-2">5. Pola Geometri</span>
-                            <img id="js-step-5" src="" class="rounded-lg shadow-sm border border-emerald-200 w-full object-cover">
-                        </div>
-                    </div>
-                </div>
+                                    <div id="js-steps-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                                    </div>
+                                </div>
 
                 <div class="border-t border-slate-200 pt-8">
                     <div class="flex items-center justify-between mb-6">

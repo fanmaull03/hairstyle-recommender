@@ -63,6 +63,7 @@ navigator.mediaDevices
     captureBtn.disabled = true;
   });
 
+// === LOGIKA BARU: MEMBUAT KOTAK (SQUARE 1:1) DARI KAMERA ===
 captureBtn.addEventListener("click", async () => {
   if (!video.videoWidth) return;
 
@@ -74,14 +75,37 @@ captureBtn.addEventListener("click", async () => {
     '<span class="text-emerald-600"><i class="fa-solid fa-microchip fa-fade"></i> AI sedang bekerja...</span>';
   scannerLine.classList.remove("hidden");
 
+  // 1. Cari ukuran sisi terpendek untuk dijadikan ukuran persegi
+  const minSize = Math.min(video.videoWidth, video.videoHeight);
+
+  // 2. Hitung titik potong X dan Y agar area yang diambil persis di tengah video
+  const startX = (video.videoWidth - minSize) / 2;
+  const startY = (video.videoHeight - minSize) / 2;
+
+  // 3. Atur ukuran canvas menjadi persegi murni (1:1)
   const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = minSize;
+  canvas.height = minSize;
   const ctx = canvas.getContext("2d");
+
+  // 4. Efek cermin (Mirroring)
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
-  ctx.drawImage(video, 0, 0);
 
+  // 5. Gambar video ke canvas HANYA pada area kotak tengah yang sudah dihitung
+  ctx.drawImage(
+    video,
+    startX,
+    startY,
+    minSize,
+    minSize, // Koordinat & ukuran dari sumber (video)
+    0,
+    0,
+    minSize,
+    minSize, // Koordinat & ukuran tujuan (canvas)
+  );
+
+  // Hasilnya adalah base64 image dengan rasio murni 1:1
   const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
 
   try {
@@ -169,12 +193,27 @@ function updateResultUI(result) {
   jsAnnotated.classList.remove("hidden");
 
   if (result.steps) {
-    jsStepsContainer.classList.remove("hidden");
-    jsStep1.src = "data:image/jpeg;base64," + result.steps["1_original"];
-    jsStep2.src = "data:image/jpeg;base64," + result.steps["2_grayscale"];
-    jsStep3.src = "data:image/jpeg;base64," + result.steps["3_face_detection"];
-    jsStep4.src = "data:image/jpeg;base64," + result.steps["4_landmarks"];
-    jsStep5.src = "data:image/jpeg;base64," + result.steps["5_shape_pattern"];
+    document.getElementById("js-steps-container").classList.remove("hidden");
+    const grid = document.getElementById("js-steps-grid");
+    grid.innerHTML = "";
+
+    Object.keys(result.steps).forEach((key) => {
+      let labelName = key.replace(/_/g, " ").toUpperCase();
+      let isFinalStep = key.includes("shape_pattern");
+
+      let bgColor = isFinalStep
+        ? "bg-emerald-50 border-emerald-200"
+        : "bg-slate-50 border-slate-200";
+      let textColor = isFinalStep ? "text-emerald-700" : "text-slate-600";
+
+      let stepHtml = `
+              <div class="flex flex-col items-center p-2 rounded-xl border ${bgColor}">
+                  <span class="text-xs font-semibold ${textColor} mb-2">${labelName}</span>
+                  <img src="data:image/jpeg;base64,${result.steps[key]}" class="rounded-lg shadow-sm border w-full object-cover">
+              </div>
+          `;
+      grid.insertAdjacentHTML("beforeend", stepHtml);
+    });
   }
 
   jsGrid.innerHTML = result.hairstyles
