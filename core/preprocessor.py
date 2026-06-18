@@ -34,8 +34,14 @@ class Preprocessor:
         return img
 
     def resize(self, img):
-        """Tahap 1: Standarisasi ukuran ke target_size"""
-        return cv2.resize(img, self.target_size, interpolation=cv2.INTER_AREA)
+        """Tahap 1: Resize dengan mempertahankan aspect ratio (mencegah distorsi wajah)"""
+        h, w = img.shape[:2]
+
+        # Patokan lebar 500 piksel agar komputasi ringan
+        new_w = 500
+        new_h = int((new_w / w) * h)
+
+        return cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
 
     def to_grayscale(self, img):
         """Tahap 2: Konversi BGR → Grayscale"""
