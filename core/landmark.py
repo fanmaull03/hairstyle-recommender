@@ -35,19 +35,19 @@ class LandmarkDetector:
         Return: dict fitur yang dipakai classifier.
         """
         # ── Lebar & tinggi wajah ──────────────────────────────
-        # Titik 1 (kiri) ↔ 17 (kanan) = lebar maksimum wajah
+        # Titik 0 (kiri) ↔ 16 (kanan) = lebar maksimum wajah
         face_width  = self._dist(points[0],  points[16])
 
-        # Titik 8 (dagu) ↔ 28 (pangkal hidung/dahi bawah)
-        # Kita estimasi tinggi dari dagu ke dahi atas (titik 20 area dahi)
+        # Titik 8 (dagu) ↔ 19 (alis atas) = estimasi tinggi wajah
+        # points[19] lebih baik dari points[27] karena lebih dekat ke dahi
         face_height = self._dist(points[8],  points[19])
 
         # ── Lebar rahang ──────────────────────────────────────
-        # Titik 5 ↔ 13 (area mandibula, lebih ke bawah dari pipi)
-        jaw_width   = self._dist(points[4],  points[12])
+        # Titik 5 ↔ 11 (area mandibula, rahang bawah)
+        jaw_width   = self._dist(points[5],  points[11])
 
         # ── Lebar dahi ────────────────────────────────────────
-        # Titik 18 ↔ 27 (ujung alis kiri dan kanan)
+        # Titik 17 ↔ 26 (alis kiri dan kanan)
         forehead_width = self._dist(points[17], points[26])
 
         # ── Lebar pipi (cheekbone) ────────────────────────────
